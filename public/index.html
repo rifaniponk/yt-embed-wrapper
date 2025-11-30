@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Embed Wrapper - Safe HTTPS YouTube Embeds for Mobile Apps</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+    header p {
+      font-size: 16px;
+      opacity: 0.95;
+    }
+    .content {
+      padding: 40px 30px;
+    }
+    h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .output {
+      background: #f8f9fa;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 20px;
+      word-break: break-all;
+      font-size: 13px;
+      color: #555;
+      display: none;
+    }
+    .output.visible {
+      display: block;
+    }
+    .samples {
+      margin-top: 40px;
+      padding-top: 30px;
+      border-top: 2px solid #e1e8ed;
+    }
+    .sample-link {
+      display: block;
+      background: #f8f9fa;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #667eea;
+      font-weight: 600;
+      transition: background 0.3s;
+      border: 2px solid transparent;
+    }
+    .sample-link:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    .sample-link small {
+      display: block;
+      margin-top: 5px;
+      font-weight: normal;
+      opacity: 0.8;
+      font-size: 12px;
+    }
+    .docs {
+      background: #fff9e6;
+      border-left: 4px solid #ffc107;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 6px;
+    }
+    .docs h3 {
+      color: #f57c00;
+      margin-bottom: 10px;
+    }
+    .docs p {
+      color: #666;
+      margin-bottom: 8px;
+    }
+    code {
+      background: #f1f3f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+      color: #e74c3c;
+      font-family: "Monaco", "Courier New", monospace;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #999;
+      font-size: 14px;
+      background: #f8f9fa;
+    }
+    footer a {
+      color: #667eea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎥 YouTube Embed Wrapper</h1>
+      <p>Safe HTTPS wrapper for YouTube embeds in Cordova, Capacitor, and mobile WebViews</p>
+    </header>
+
+    <div class="content">
+      <h2>Test YouTube Embed</h2>
+      <form id="embedForm">
+        <div class="form-group">
+          <label for="videoId">Video ID *</label>
+          <input type="text" id="videoId" placeholder="dQw4w9WgXcQ" required>
+        </div>
+
+        <div class="row">
+          <div class="form-group">
+            <label for="autoplay">Autoplay</label>
+            <select id="autoplay">
+              <option value="0">No</option>
+              <option value="1" selected>Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="mute">Mute</label>
+            <select id="mute">
+              <option value="0">No</option>
+              <option value="1" selected>Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="controls">Controls</label>
+            <select id="controls">
+              <option value="0">No</option>
+              <option value="1" selected>Yes</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modest">Modest Branding</label>
+            <select id="modest">
+              <option value="0">No</option>
+              <option value="1" selected>Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="form-group">
+            <label for="start">Start (seconds)</label>
+            <input type="number" id="start" placeholder="0" min="0">
+          </div>
+
+          <div class="form-group">
+            <label for="end">End (seconds)</label>
+            <input type="number" id="end" placeholder="" min="0">
+          </div>
+
+          <div class="form-group">
+            <label for="loop">Loop</label>
+            <select id="loop">
+              <option value="0" selected>No</option>
+              <option value="1">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="playlist">Playlist (comma-separated IDs, for loop)</label>
+          <input type="text" id="playlist" placeholder="Leave empty for single video loop">
+        </div>
+
+        <button type="submit">🚀 Open Wrapper</button>
+      </form>
+
+      <div id="output" class="output">
+        <strong>Generated URL:</strong><br>
+        <span id="generatedUrl"></span>
+      </div>
+
+      <div class="samples">
+        <h2>Sample Videos</h2>
+        <a href="/embed/youtube.html?id=dQw4w9WgXcQ&autoplay=1&mute=1" target="_blank" class="sample-link">
+          🎵 Classic Music Video (Autoplay, Muted)
+          <small>id=dQw4w9WgXcQ&autoplay=1&mute=1</small>
+        </a>
+        <a href="/embed/youtube.html?id=jNQXAC9IVRw&controls=1" target="_blank" class="sample-link">
+          🎹 Me at the zoo (First YouTube Video)
+          <small>id=jNQXAC9IVRw&controls=1</small>
+        </a>
+        <a href="/embed/youtube.html?id=dQw4w9WgXcQ&loop=1&playlist=dQw4w9WgXcQ&mute=1" target="_blank" class="sample-link">
+          🔁 Looping Video Example
+          <small>id=dQw4w9WgXcQ&loop=1&playlist=dQw4w9WgXcQ&mute=1</small>
+        </a>
+      </div>
+
+      <div class="docs">
+        <h3>📖 Quick Usage</h3>
+        <p>In your Cordova/Capacitor app, use this wrapper in an iframe:</p>
+        <p>
+          <code>&lt;iframe src="https://your-domain.netlify.app/embed/youtube.html?id=VIDEO_ID&autoplay=1&mute=1" allow="autoplay; fullscreen"&gt;&lt;/iframe&gt;</code>
+        </p>
+        <p style="margin-top: 15px;">
+          <strong>Why this fixes iOS issues:</strong> The wrapper page is served over HTTPS with matching protocols, 
+          solving the "Protocols must match" error when embedding YouTube in mobile WebViews.
+        </p>
+        <p style="margin-top: 10px;">
+          <strong>Parameters:</strong> <code>id</code> (required), <code>autoplay</code>, <code>mute</code>, 
+          <code>controls</code>, <code>start</code>, <code>end</code>, <code>loop</code>, 
+          <code>playlist</code>, <code>modest</code>
+        </p>
+        <p style="margin-top: 10px;">
+          📚 For full documentation, check the <a href="https://github.com/yourusername/yt-embed-wrapper" target="_blank">README.md</a>
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      <p>Built with ❤️ for the mobile developer community</p>
+      <p><a href="https://github.com/yourusername/yt-embed-wrapper" target="_blank">GitHub</a> | <a href="/embed/youtube.html" target="_blank">Wrapper Endpoint</a></p>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('embedForm');
+    const output = document.getElementById('output');
+    const generatedUrl = document.getElementById('generatedUrl');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const videoId = document.getElementById('videoId').value.trim();
+      if (!videoId) {
+        alert('Please enter a video ID');
+        return;
+      }
+
+      const params = new URLSearchParams();
+      params.set('id', videoId);
+      params.set('autoplay', document.getElementById('autoplay').value);
+      params.set('mute', document.getElementById('mute').value);
+      params.set('controls', document.getElementById('controls').value);
+      params.set('modest', document.getElementById('modest').value);
+      params.set('loop', document.getElementById('loop').value);
+
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+      const playlist = document.getElementById('playlist').value.trim();
+
+      if (start) params.set('start', start);
+      if (end) params.set('end', end);
+      if (playlist) params.set('playlist', playlist);
+
+      const url = `/embed/youtube.html?${params.toString()}`;
+      generatedUrl.textContent = window.location.origin + url;
+      output.classList.add('visible');
+
+      // Open in same tab after short delay to show the URL
+      setTimeout(() => {
+        window.location.href = url;
+      }, 500);
+    });
+  </script>
+</body>
+</html>
+

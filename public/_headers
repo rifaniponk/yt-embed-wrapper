@@ -1,0 +1,17 @@
+# Security headers for all pages
+/*
+  Referrer-Policy: origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 0
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# Special headers for embed endpoint - allow iframe embedding
+/embed/*
+  Referrer-Policy: origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: ALLOWALL
+  X-XSS-Protection: 0
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Content-Security-Policy: default-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://i.ytimg.com data:; connect-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors *
+

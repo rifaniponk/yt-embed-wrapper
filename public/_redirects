@@ -1,0 +1,8 @@
+# Netlify redirects and rewrites
+
+# SPA fallback (not needed for this static site, but useful for 404)
+# /* /index.html 200
+
+# Custom 404
+/* /404.html 404
+

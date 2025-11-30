@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>YouTube Embed Wrapper</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .error-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    .error-box {
+      max-width: 500px;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .error-box h1 {
+      color: #e74c3c;
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    .error-box p {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .error-box code {
+      background: #f8f8f8;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+      color: #e74c3c;
+    }
+    .error-box .example {
+      background: #f8f8f8;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+      font-size: 12px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    (function() {
+      'use strict';
+
+      // Parse URL query parameters
+      const params = new URLSearchParams(window.location.search);
+      
+      // Extract and validate video ID
+      const videoId = params.get('id');
+      
+      if (!videoId || !/^[\w-]{11}$/.test(videoId)) {
+        showError();
+        return;
+      }
+
+      // Parse parameters with defaults
+      const autoplay = parseInt(params.get('autoplay')) || 0;
+      const mute = params.has('mute') ? parseInt(params.get('mute')) : 1; // default muted for safer autoplay
+      const controls = params.has('controls') ? parseInt(params.get('controls')) : 1;
+      const modestbranding = params.has('modest') ? parseInt(params.get('modest')) : 1;
+      const start = params.get('start') ? parseInt(params.get('start')) : undefined;
+      const end = params.get('end') ? parseInt(params.get('end')) : undefined;
+      const loop = parseInt(params.get('loop')) || 0;
+      const playlistParam = params.get('playlist') || '';
+
+      // Build YouTube embed URL
+      const ytParams = new URLSearchParams({
+        enablejsapi: '1',
+        playsinline: '1',
+        autoplay: autoplay.toString(),
+        mute: mute.toString(),
+        controls: controls.toString(),
+        modestbranding: modestbranding.toString(),
+        origin: window.location.origin
+      });
+
+      if (start !== undefined) ytParams.set('start', start.toString());
+      if (end !== undefined) ytParams.set('end', end.toString());
+      if (loop === 1) {
+        ytParams.set('loop', '1');
+        // For loop to work, playlist must include the video ID or provided playlist
+        ytParams.set('playlist', playlistParam || videoId);
+      } else if (playlistParam) {
+        ytParams.set('playlist', playlistParam);
+      }
+
+      const embedUrl = `https://www.youtube.com/embed/${videoId}?${ytParams.toString()}`;
+
+      // Create and inject iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = embedUrl;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+      iframe.allowFullscreen = true;
+      iframe.referrerPolicy = 'origin-when-cross-origin';
+      iframe.title = 'YouTube video player';
+      
+      document.body.appendChild(iframe);
+
+      // PostMessage API: Listen for commands from parent window
+      window.addEventListener('message', function(event) {
+        // Only process messages intended for YouTube control
+        if (event.data && event.data.type === 'yt-command') {
+          const command = event.data.action;
+          const args = event.data.args || {};
+          
+          // Forward command to YouTube iframe
+          if (iframe && iframe.contentWindow) {
+            const ytMessage = {
+              event: 'command',
+              func: command,
+              args: args.value !== undefined ? [args.value] : []
+            };
+            iframe.contentWindow.postMessage(JSON.stringify(ytMessage), '*');
+          }
+        }
+      });
+
+      // Forward YouTube Player API events to parent window
+      window.addEventListener('message', function(event) {
+        // Check if message is from YouTube
+        if (event.origin === 'https://www.youtube.com' && event.data) {
+          try {
+            const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+            
+            // Forward YouTube events to parent (if not same-origin restricted)
+            if (window.parent && window.parent !== window) {
+              try {
+                window.parent.postMessage({
+                  type: 'yt-event',
+                  event: data.event,
+                  info: data.info
+                }, '*');
+              } catch (e) {
+                // Parent may be cross-origin restricted, silently fail
+                console.log('Unable to post message to parent:', e.message);
+              }
+            }
+          } catch (e) {
+            // Invalid JSON or other parsing error
+          }
+        }
+      });
+
+      function showError() {
+        document.body.innerHTML = `
+          <div class="error-container">
+            <div class="error-box">
+              <h1>⚠️ Invalid or Missing Video ID</h1>
+              <p>Please provide a valid YouTube video ID using the <code>id</code> parameter.</p>
+              <p><strong>Usage:</strong></p>
+              <div class="example">
+                ${window.location.origin}/embed/youtube.html?id=<strong>VIDEO_ID</strong>&autoplay=1&mute=1
+              </div>
+              <p style="margin-top: 15px;"><strong>Examples:</strong></p>
+              <ul style="margin-left: 20px; margin-top: 10px; color: #666;">
+                <li style="margin-bottom: 8px;">
+                  <a href="?id=dQw4w9WgXcQ&autoplay=1&mute=1" style="color: #3498db; text-decoration: none;">
+                    ?id=dQw4w9WgXcQ&autoplay=1&mute=1
+                  </a>
+                </li>
+                <li style="margin-bottom: 8px;">
+                  <a href="?id=jNQXAC9IVRw&controls=1" style="color: #3498db; text-decoration: none;">
+                    ?id=jNQXAC9IVRw&controls=1
+                  </a>
+                </li>
+                <li>
+                  <a href="?id=dQw4w9WgXcQ&loop=1&playlist=dQw4w9WgXcQ" style="color: #3498db; text-decoration: none;">
+                    ?id=dQw4w9WgXcQ&loop=1&playlist=dQw4w9WgXcQ
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `;
+      }
+    })();
+  </script>
+</body>
+</html>
+
