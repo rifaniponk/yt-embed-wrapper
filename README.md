@@ -401,6 +401,19 @@ export default {
 2. ✅ Check that your app is iframing the wrapper (not YouTube directly)
 3. ✅ Clear app cache and rebuild
 
+### CSP frame-ancestors Error on iOS
+
+**Issue:** "Refused to load [...] because it does not appear in the frame-ancestors directive of the Content Security Policy."
+
+**Solutions:**
+1. ✅ Ensure `X-Frame-Options` header is NOT set for `/embed/*` (conflicts with CSP)
+2. ✅ Verify CSP has `frame-ancestors *;` (note the semicolon at the end)
+3. ✅ Redeploy to Netlify after updating `netlify.toml` and `public/_headers`
+4. ✅ Clear browser/app cache and test again
+5. ✅ Check headers in browser DevTools → Network → Response Headers
+
+**Note:** iOS WebKit is particularly strict about CSP. `X-Frame-Options` and CSP `frame-ancestors` cannot coexist - always use only CSP's `frame-ancestors` for modern browsers.
+
 ### Error 153 (YouTube API Error)
 
 **Issue:** YouTube shows "Error loading player: Error Code 153"
