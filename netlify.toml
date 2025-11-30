@@ -2,18 +2,8 @@
   publish = "public"
   command = "echo 'No build needed - static site'"
 
-# Security headers
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Referrer-Policy = "origin-when-cross-origin"
-    X-Content-Type-Options = "nosniff"
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "0"
-    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-
-# Special headers for embed endpoint - allows iframe embedding from any origin
-# NOTE: X-Frame-Options removed to avoid conflict with CSP frame-ancestors (iOS WebKit is strict about this)
+# Special headers for embed endpoint - MUST come FIRST for priority
+# NOTE: X-Frame-Options intentionally omitted to avoid conflict with CSP frame-ancestors (iOS WebKit is strict)
 [[headers]]
   for = "/embed/*"
   [headers.values]
@@ -23,6 +13,16 @@
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
     # CSP allows YouTube embeds and permits this page to be iframed by any origin (frame-ancestors *)
     Content-Security-Policy = "default-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://i.ytimg.com data:; connect-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors *;"
+
+# Security headers for all other pages
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Referrer-Policy = "origin-when-cross-origin"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "0"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
 [[redirects]]
   from = "/*"
