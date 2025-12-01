@@ -246,7 +246,16 @@ netlify deploy --prod
 
 **Custom Headers for Cloudflare Pages:**
 
-Create a `public/_headers` file or use a `_worker.js` for more control.
+Create a `public/_headers` file with the following content:
+
+```
+/*
+  Content-Security-Policy: default-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://i.ytimg.com data:; connect-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors * ionic: capacitor: http://localhost:* https://localhost:*;
+  Referrer-Policy: origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 0
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+```
 
 ### Option 3: Vercel
 
@@ -303,79 +312,6 @@ gh-pages -d public
     height: 100%;
     border: 0;
   }
-</style>
-```
-
-### Capacitor Example (React)
-
-```jsx
-import React from 'react';
-
-function YouTubePlayer({ videoId }) {
-  return (
-    <div className="video-wrapper">
-      <iframe
-        src={`https://your-site.netlify.app/?id=${videoId}&autoplay=1&mute=1`}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-        allowFullScreen
-        style={{
-          width: '100%',
-          height: '100%',
-          border: 0
-        }}
-      />
-    </div>
-  );
-}
-
-export default YouTubePlayer;
-```
-
-### Capacitor Example (Vue)
-
-```vue
-<template>
-  <div class="video-wrapper">
-    <iframe
-      :src="embedUrl"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-      allowfullscreen
-    />
-  </div>
-</template>
-
-<script>
-export default {
-  props: {
-    videoId: {
-      type: String,
-      required: true
-    }
-  },
-  computed: {
-    embedUrl() {
-      return `https://your-site.netlify.app/?id=${this.videoId}&autoplay=1&mute=1`;
-    }
-  }
-}
-</script>
-
-<style scoped>
-.video-wrapper {
-  position: relative;
-  padding-bottom: 56.25%;
-  height: 0;
-  overflow: hidden;
-}
-
-.video-wrapper iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
 </style>
 ```
 
@@ -460,43 +396,3 @@ export default {
 | Edge | ✅ Full | Desktop support |
 | WKWebView | ✅ Full | Cordova/Capacitor |
 | UIWebView | ⚠️ Limited | Deprecated, use WKWebView |
-
-## 🔒 Privacy & Analytics
-
-This wrapper **does not include any analytics or tracking** by default. All traffic goes directly to YouTube, subject to YouTube's privacy policy.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Built for the mobile developer community
-- Inspired by common iOS WebView embedding issues
-- Thanks to all contributors and users!
-
-## 📧 Support
-
-- 🐛 **Issues:** [GitHub Issues](https://github.com/yourusername/yt-embed-wrapper/issues)
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/yourusername/yt-embed-wrapper/discussions)
-- 📧 **Email:** your.email@example.com
-
-## 🔗 Related Projects
-
-- [YouTube IFrame Player API](https://developers.google.com/youtube/iframe_api_reference)
-- [Capacitor](https://capacitorjs.com/)
-- [Cordova](https://cordova.apache.org/)
-
----
-
-Made with ❤️ for developers struggling with iOS WebView embedding
