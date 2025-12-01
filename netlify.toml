@@ -2,29 +2,20 @@
   publish = "public"
   command = "echo 'No build needed - static site'"
 
-# General rules for all pages - Processed first
+# Global security headers for the entire site
 [[headers]]
   for = "/*"
   [headers.values]
-    Referrer-Policy = "origin-when-cross-origin"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "0"
-    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
-    # Default secure CSP - prevents framing by others
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';"
-
-# Special headers for embed endpoint - Processed last to override
-[[headers]]
-  for = "/embed/*"
-  [headers.values]
-    # Override CSP to allow embedding from anywhere (frame-ancestors *)
+    # Allow embedding from anywhere (frame-ancestors *)
+    # Allow scripts/styles from self and YouTube
     Content-Security-Policy = "default-src 'self'; frame-src https://www.youtube.com https://www.youtube-nocookie.com; script-src 'self' 'unsafe-inline' https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://i.ytimg.com data:; connect-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors *;"
     Referrer-Policy = "origin-when-cross-origin"
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "0"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
+# Backward compatibility for existing apps using the old path
 [[redirects]]
-  from = "/*"
-  to = "/404.html"
-  status = 404
+  from = "/embed/youtube.html"
+  to = "/index.html"
+  status = 200

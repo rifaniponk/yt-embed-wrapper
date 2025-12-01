@@ -39,7 +39,7 @@ In your HTML:
 
 ```html
 <iframe
-  src="https://your-site.netlify.app/embed/youtube.html?id=dQw4w9WgXcQ&autoplay=1&mute=1"
+  src="https://your-site.netlify.app/?id=dQw4w9WgXcQ&autoplay=1&mute=1"
   style="width:100%; height:220px; border:0;"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
   allowfullscreen
@@ -53,7 +53,7 @@ In your HTML:
 ### Basic Embed URL Structure
 
 ```
-https://your-site.netlify.app/embed/youtube.html?id={VIDEO_ID}&param1=value1&param2=value2
+https://your-site.netlify.app/?id={VIDEO_ID}&param1=value1&param2=value2
 ```
 
 ### Query Parameters
@@ -162,7 +162,7 @@ window.addEventListener('message', function(event) {
 
 ### Frame Embedding Policy
 
-The wrapper sets `frame-ancestors *` in the CSP header, which allows **any origin** to embed the wrapper in an iframe. This is necessary for Cordova/Capacitor apps (which use `file://` or `capacitor://` protocols) to work.
+The wrapper sets `frame-ancestors *` in the CSP header, which allows **any origin** to embed the wrapper in an iframe. This is necessary for Cordova/Capacitor apps (which use `file://`, `ionic://`, or `capacitor://` protocols) to work.
 
 **Trade-off:** This makes the wrapper embeddable by any website. However, since:
 - The wrapper only displays YouTube content (not your sensitive data)
@@ -171,7 +171,7 @@ The wrapper sets `frame-ancestors *` in the CSP header, which allows **any origi
 
 ...this is generally an acceptable security posture for this use case.
 
-**If you need stricter controls:** Modify the `frame-ancestors` directive in `netlify.toml` and `public/_headers` to whitelist specific domains.
+**If you need stricter controls:** Modify the `frame-ancestors` directive in `netlify.toml` to whitelist specific domains.
 
 ### Content Security Policy (CSP)
 
@@ -211,9 +211,7 @@ python3 -m http.server 8080
 ### Test the Wrapper
 
 1. Visit `http://localhost:5173`
-2. Enter a YouTube video ID (e.g., `dQw4w9WgXcQ`)
-3. Configure parameters
-4. Click "Open Wrapper"
+2. Append a video ID to the URL: `http://localhost:5173/?id=dQw4w9WgXcQ`
 
 ## 🚀 Deployment
 
@@ -248,7 +246,7 @@ netlify deploy --prod
 
 **Custom Headers for Cloudflare Pages:**
 
-Create a `public/_headers` file (already included) or use a `_worker.js` for more control.
+Create a `public/_headers` file or use a `_worker.js` for more control.
 
 ### Option 3: Vercel
 
@@ -283,7 +281,7 @@ gh-pages -d public
 <div class="video-container">
   <iframe
     id="yt-player"
-    src="https://your-site.netlify.app/embed/youtube.html?id=dQw4w9WgXcQ&autoplay=1&mute=1"
+    src="https://your-site.netlify.app/?id=dQw4w9WgXcQ&autoplay=1&mute=1"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
     allowfullscreen
   ></iframe>
@@ -317,7 +315,7 @@ function YouTubePlayer({ videoId }) {
   return (
     <div className="video-wrapper">
       <iframe
-        src={`https://your-site.netlify.app/embed/youtube.html?id=${videoId}&autoplay=1&mute=1`}
+        src={`https://your-site.netlify.app/?id=${videoId}&autoplay=1&mute=1`}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowFullScreen
         style={{
@@ -356,7 +354,7 @@ export default {
   },
   computed: {
     embedUrl() {
-      return `https://your-site.netlify.app/embed/youtube.html?id=${this.videoId}&autoplay=1&mute=1`;
+      return `https://your-site.netlify.app/?id=${this.videoId}&autoplay=1&mute=1`;
     }
   }
 }
@@ -406,9 +404,9 @@ export default {
 **Issue:** "Refused to load [...] because it does not appear in the frame-ancestors directive of the Content Security Policy."
 
 **Solutions:**
-1. ✅ Ensure `X-Frame-Options` header is NOT set for `/embed/*` (conflicts with CSP)
+1. ✅ Ensure `X-Frame-Options` header is NOT set (conflicts with CSP)
 2. ✅ Verify CSP has `frame-ancestors *;` (note the semicolon at the end)
-3. ✅ Redeploy to Netlify after updating `netlify.toml` and `public/_headers`
+3. ✅ Redeploy to Netlify after updating `netlify.toml`
 4. ✅ Clear browser/app cache and test again
 5. ✅ Check headers in browser DevTools → Network → Response Headers
 
@@ -467,10 +465,6 @@ export default {
 
 This wrapper **does not include any analytics or tracking** by default. All traffic goes directly to YouTube, subject to YouTube's privacy policy.
 
-If you want to track usage:
-- Add your own analytics to `index.html` (landing page)
-- Do NOT add analytics to `youtube.html` (wrapper) to avoid slowing down video loads
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please:
@@ -506,4 +500,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 Made with ❤️ for developers struggling with iOS WebView embedding
-
